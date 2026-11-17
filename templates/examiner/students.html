@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Students – Slot {{ slot.id }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="mb-0">Booked Students</h2>
+    <small class="text-muted">
+      {{ slot.exam.name }} &mdash;
+      {{ slot.date.strftime('%d %b %Y') }}
+      {{ slot.start_time.strftime('%H:%M') }} – {{ slot.end_time.strftime('%H:%M') }}
+    </small>
+  </div>
+  <a href="{{ url_for('examiner.slots', exam_id=slot.exam_id) }}" class="btn btn-outline-secondary">
+    &larr; Back to Slots
+  </a>
+</div>
+
+{% if bookings %}
+<table class="table table-bordered table-hover align-middle">
+  <thead class="table-dark">
+    <tr>
+      <th>#</th>
+      <th>Student Name</th>
+      <th>Email</th>
+      <th>Booking Status</th>
+      <th>Evaluated?</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for booking in bookings %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ booking.student.name }}</td>
+      <td>{{ booking.student.email }}</td>
+      <td>
+        <span class="badge
+          {% if booking.status == 'Booked' %}bg-primary
+          {% elif booking.status == 'Completed' %}bg-success
+          {% else %}bg-secondary
+          {% endif %}">
+          {{ booking.status }}
+        </span>
+      </td>
+      <td>
+        {% if booking.evaluation %}
+          <span class="badge bg-success">Yes</span>
+        {% else %}
+          <span class="badge bg-warning text-dark">No</span>
+        {% endif %}
+      </td>
+      <td>
+        <a href="{{ url_for('examiner.evaluate', booking_id=booking.id) }}"
+           class="btn btn-sm btn-outline-primary">
+          {% if booking.evaluation %}Edit Evaluation{% else %}Evaluate{% endif %}
+        </a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="alert alert-info">No students have booked this slot yet.</div>
+{% endif %}
+{% endblock %}

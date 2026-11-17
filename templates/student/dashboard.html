@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Welcome, {{ current_user.name }}</h2>
+
+<div class="row g-4">
+
+    <div class="col-sm-6 col-lg-3">
+        <div class="card text-bg-primary h-100">
+            <div class="card-body">
+                <h3 class="card-title display-6">{{ available_exams }}</h3>
+                <p class="card-text">Exams Open for Booking</p>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('student.exams') }}" class="text-white">Browse exams &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+        <div class="card text-bg-info h-100">
+            <div class="card-body">
+                <h3 class="card-title display-6">{{ available_slots }}</h3>
+                <p class="card-text">Available Slots</p>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('student.exams') }}" class="text-white">View slots &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+        <div class="card text-bg-success h-100">
+            <div class="card-body">
+                <h3 class="card-title display-6">{{ booked_slots }}</h3>
+                <p class="card-text">My Active Bookings</p>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('student.bookings') }}" class="text-white">View bookings &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+        <div class="card text-bg-warning h-100">
+            <div class="card-body">
+                <h3 class="card-title display-6">{{ published_results }}</h3>
+                <p class="card-text">Published Results</p>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('student.results') }}" class="text-white">View results &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

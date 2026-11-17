@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Examiner Dashboard{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Examiner Dashboard</h2>
+
+<div class="row g-4">
+
+  <div class="col-sm-6 col-lg-3">
+    <div class="card text-bg-primary h-100">
+      <div class="card-body">
+        <h6 class="card-title">Assigned Exams</h6>
+        <p class="display-6 fw-bold mb-0">{{ exam_count }}</p>
+      </div>
+      <div class="card-footer">
+        <a href="{{ url_for('examiner.exams') }}" class="text-white">View exams &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-lg-3">
+    <div class="card text-bg-success h-100">
+      <div class="card-body">
+        <h6 class="card-title">Slots Created</h6>
+        <p class="display-6 fw-bold mb-0">{{ slot_count }}</p>
+      </div>
+      <div class="card-footer">
+        <span class="text-white">Across all your exams</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-lg-3">
+    <div class="card text-bg-info h-100">
+      <div class="card-body">
+        <h6 class="card-title">Students Booked</h6>
+        <p class="display-6 fw-bold mb-0">{{ students_booked }}</p>
+      </div>
+      <div class="card-footer">
+        <span class="text-white">Booked + Completed</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-lg-3">
+    <div class="card text-bg-warning h-100">
+      <div class="card-body">
+        <h6 class="card-title">Pending Evaluations</h6>
+        <p class="display-6 fw-bold mb-0">{{ pending_evals }}</p>
+      </div>
+      <div class="card-footer">
+        <span class="text-dark">Students awaiting marks</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

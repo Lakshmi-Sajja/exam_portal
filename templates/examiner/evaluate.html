@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Evaluate – {{ booking.student.name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+
+    <h2 class="mb-1">Evaluation</h2>
+    <p class="text-muted mb-4">
+      Student: <strong>{{ booking.student.name }}</strong> &mdash;
+      Exam: <strong>{{ exam.name }}</strong>
+    </p>
+
+    {% if not rubrics %}
+    <div class="alert alert-warning">
+      No rubrics have been defined for this exam. Ask the admin to add rubrics before evaluating.
+    </div>
+    {% else %}
+
+    <form method="POST">
+
+      <table class="table table-bordered align-middle mb-4">
+        <thead class="table-secondary">
+          <tr>
+            <th>Criterion</th>
+            <th>Description</th>
+            <th>Max Marks</th>
+            <th>Marks Given</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for rubric in rubrics %}
+          <tr>
+            <td>{{ rubric.criterion_name }}</td>
+            <td class="text-muted small">{{ rubric.description or '—' }}</td>
+            <td>{{ rubric.max_marks }}</td>
+            <td>
+              <input
+                type="number"
+                name="marks_{{ rubric.id }}"
+                class="form-control"
+                min="0"
+                max="{{ rubric.max_marks }}"
+                step="0.5"
+                value="{{ existing_scores.get(rubric.id, '') }}"
+                required>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="mb-4">
+        <label for="remarks" class="form-label">Remarks (optional)</label>
+        <textarea
+          id="remarks"
+          name="remarks"
+          class="form-control"
+          rows="3">{{ evaluation.remarks if evaluation else '' }}</textarea>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success">Save Evaluation</button>
+        <a href="{{ url_for('examiner.slot_students', slot_id=booking.slot_id) }}"
+           class="btn btn-outline-secondary">Cancel</a>
+      </div>
+
+    </form>
+
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Rubric — {{ exam.name }}{% endblock %}
+
+{% block content %}
+<h2>{{ action }} Rubric Criterion</h2>
+<p class="text-muted">Exam: <strong>{{ exam.name }}</strong> | Max marks: {{ exam.max_marks }}</p>
+<hr>
+
+<form method="POST" class="mt-3" style="max-width: 540px;">
+
+  <div class="mb-3">
+    <label for="criterion_name" class="form-label">Criterion Name <span class="text-danger">*</span></label>
+    <input type="text" id="criterion_name" name="criterion_name" class="form-control"
+           value="{{ rubric.criterion_name if rubric else '' }}" required>
+  </div>
+
+  <div class="row">
+    <div class="col mb-3">
+      <label for="max_marks" class="form-label">Max Marks <span class="text-danger">*</span></label>
+      <input type="number" id="max_marks" name="max_marks" class="form-control" min="0"
+             value="{{ rubric.max_marks if rubric else '' }}" required>
+    </div>
+    <div class="col mb-3">
+      <label for="weightage" class="form-label">Weightage (%)</label>
+      <input type="number" id="weightage" name="weightage" class="form-control" min="0" max="100" step="0.1"
+             value="{{ rubric.weightage if rubric else '0' }}">
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label for="description" class="form-label">Description</label>
+    <textarea id="description" name="description" class="form-control" rows="3">{{ rubric.description if rubric else '' }}</textarea>
+  </div>
+
+  <button type="submit" class="btn btn-primary">{{ action }} Criterion</button>
+  <a href="{{ url_for('admin.rubrics', exam_id=exam.id) }}" class="btn btn-secondary ms-2">Cancel</a>
+
+</form>
+{% endblock %}

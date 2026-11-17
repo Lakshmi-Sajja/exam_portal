@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Rubrics — {{ exam.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-1">
+  <h2>Rubrics for <em>{{ exam.name }}</em></h2>
+  <a href="{{ url_for('admin.add_rubric', exam_id=exam.id) }}" class="btn btn-primary">+ Add Criterion</a>
+</div>
+
+<p class="text-muted mb-3">
+  Rubric total: <strong>{{ total_rubric_marks }}</strong> /
+  Exam max marks: <strong>{{ exam.max_marks }}</strong>
+  {% if total_rubric_marks > exam.max_marks %}
+    <span class="badge bg-danger ms-1">Exceeds max marks!</span>
+  {% elif total_rubric_marks == exam.max_marks %}
+    <span class="badge bg-success ms-1">Exactly matches</span>
+  {% else %}
+    <span class="badge bg-warning text-dark ms-1">{{ exam.max_marks - total_rubric_marks }} marks unassigned</span>
+  {% endif %}
+</p>
+
+{% if rubrics %}
+<table class="table table-striped table-bordered align-middle">
+  <thead class="table-dark">
+    <tr>
+      <th>#</th>
+      <th>Criterion</th>
+      <th>Max Marks</th>
+      <th>Weightage (%)</th>
+      <th>Description</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for rubric in rubrics %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ rubric.criterion_name }}</td>
+      <td>{{ rubric.max_marks }}</td>
+      <td>{{ rubric.weightage }}</td>
+      <td>{{ rubric.description or '—' }}</td>
+      <td>
+        <a href="{{ url_for('admin.edit_rubric', rubric_id=rubric.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+        <form action="{{ url_for('admin.delete_rubric', rubric_id=rubric.id) }}" method="POST" class="d-inline"
+              onsubmit="return confirm('Delete criterion {{ rubric.criterion_name }}?')">
+          <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="text-muted">No rubric criteria yet. <a href="{{ url_for('admin.add_rubric', exam_id=exam.id) }}">Add the first one.</a></p>
+{% endif %}
+
+<a href="{{ url_for('admin.exams') }}" class="btn btn-secondary mt-2">← Back to Exams</a>
+{% endblock %}

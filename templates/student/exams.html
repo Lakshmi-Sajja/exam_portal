@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Available Exams{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Available Exams</h2>
+
+<!-- Search / filter form (GET) -->
+<form method="GET" action="{{ url_for('student.exams') }}" class="row g-2 mb-4">
+    <div class="col-md-4">
+        <input type="text" name="q" class="form-control" placeholder="Search exam or course name"
+               value="{{ q }}">
+    </div>
+    <div class="col-md-3">
+        <select name="course_id" class="form-select">
+            <option value="">All Courses</option>
+            {% for course in courses %}
+                <option value="{{ course.id }}"
+                    {% if selected_course == course.id|string %}selected{% endif %}>
+                    {{ course.code }} — {{ course.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="exam_type" class="form-select">
+            <option value="">All Types</option>
+            {% for etype in exam_types %}
+                <option value="{{ etype }}"
+                    {% if selected_type == etype %}selected{% endif %}>
+                    {{ etype }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Search</button>
+    </div>
+</form>
+
+{% if exams %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Exam Name</th>
+                    <th>Course</th>
+                    <th>Type</th>
+                    <th>Duration (min)</th>
+                    <th>Max Marks</th>
+                    <th>Booking Ends</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exam in exams %}
+                <tr>
+                    <td>{{ exam.name }}</td>
+                    <td>{{ exam.course.code }} — {{ exam.course.name }}</td>
+                    <td>{{ exam.exam_type }}</td>
+                    <td>{{ exam.duration }}</td>
+                    <td>{{ exam.max_marks }}</td>
+                    <td>{{ exam.booking_end }}</td>
+                    <td>
+                        <a href="{{ url_for('student.exam_slots', exam_id=exam.id) }}"
+                           class="btn btn-sm btn-outline-primary">View Slots</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-info">No exams are open for booking right now.</div>
+{% endif %}
+{% endblock %}

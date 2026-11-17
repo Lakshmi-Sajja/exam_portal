@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Slots – {{ exam.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="mb-0">Slots for {{ exam.name }}</h2>
+    <small class="text-muted">{{ exam.course.code }} | Status: {{ exam.status }}</small>
+  </div>
+  <div>
+    {% if can_add %}
+    <a href="{{ url_for('examiner.add_slot', exam_id=exam.id) }}" class="btn btn-primary">
+      + Add Slot
+    </a>
+    {% else %}
+    <button class="btn btn-primary" disabled title="Slot creation window is not open">
+      + Add Slot
+    </button>
+    {% endif %}
+    <a href="{{ url_for('examiner.exams') }}" class="btn btn-outline-secondary ms-2">&larr; Back</a>
+  </div>
+</div>
+
+{% if slot_data %}
+<table class="table table-bordered table-hover align-middle">
+  <thead class="table-dark">
+    <tr>
+      <th>#</th>
+      <th>Date</th>
+      <th>Start Time</th>
+      <th>End Time</th>
+      <th>Capacity</th>
+      <th>Available</th>
+      <th>Status</th>
+      <th>Students</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in slot_data %}
+    {% set slot = item.slot %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ slot.date.strftime('%d %b %Y') }}</td>
+      <td>{{ slot.start_time.strftime('%H:%M') }}</td>
+      <td>{{ slot.end_time.strftime('%H:%M') }}</td>
+      <td>{{ slot.capacity }}</td>
+      <td>{{ slot.available_seats }}</td>
+      <td>
+        <span class="badge
+          {% if slot.status == 'Available' %}bg-success
+          {% elif slot.status == 'Full' %}bg-warning text-dark
+          {% elif slot.status == 'Cancelled' %}bg-danger
+          {% else %}bg-secondary
+          {% endif %}">
+          {{ slot.status }}
+        </span>
+      </td>
+      <td>
+        <a href="{{ url_for('examiner.slot_students', slot_id=slot.id) }}" class="btn btn-sm btn-outline-info">
+          View Students
+        </a>
+      </td>
+      <td>
+        {% if item.editable %}
+        <a href="{{ url_for('examiner.edit_slot', slot_id=slot.id) }}" class="btn btn-sm btn-outline-warning me-1">
+          Edit
+        </a>
+        <form action="{{ url_for('examiner.delete_slot', slot_id=slot.id) }}" method="POST" class="d-inline"
+              onsubmit="return confirm('Delete this slot?')">
+          <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+        </form>
+        {% else %}
+        <span class="text-muted small">Locked</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="alert alert-info">No slots created for this exam yet.</div>
+{% endif %}
+{% endblock %}

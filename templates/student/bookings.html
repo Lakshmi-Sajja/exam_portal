@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}My Bookings{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">My Bookings</h2>
+
+{% if bookings %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Exam</th>
+                    <th>Course</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Booked On</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.exam.name }}</td>
+                    <td>{{ booking.exam.course.code }}</td>
+                    <td>{{ booking.slot.date }}</td>
+                    <td>
+                        {{ booking.slot.start_time.strftime('%H:%M') }} –
+                        {{ booking.slot.end_time.strftime('%H:%M') }}
+                    </td>
+                    <td>{{ booking.booking_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        {% if booking.status == 'Booked' %}
+                            <span class="badge bg-success">Booked</span>
+                        {% elif booking.status == 'Cancelled' %}
+                            <span class="badge bg-secondary">Cancelled</span>
+                        {% elif booking.status == 'Completed' %}
+                            <span class="badge bg-primary">Completed</span>
+                        {% else %}
+                            <span class="badge bg-light text-dark">{{ booking.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if booking.status == 'Booked' and today <= booking.exam.booking_end %}
+                            <form method="POST"
+                                  action="{{ url_for('student.cancel_booking', booking_id=booking.id) }}"
+                                  onsubmit="return confirm('Cancel this booking?')">
+                                <button type="submit" class="btn btn-sm btn-danger">Cancel</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-info">You have no bookings yet.
+        <a href="{{ url_for('student.exams') }}">Browse available exams.</a>
+    </div>
+{% endif %}
+{% endblock %}

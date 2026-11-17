@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Admin Dashboard</h2>
+
+<div class="row g-3">
+
+  <div class="col-sm-6 col-md-4">
+    <div class="card text-bg-primary h-100">
+      <div class="card-body">
+        <h5 class="card-title">Courses</h5>
+        <p class="card-text display-6">{{ total_courses }}</p>
+        <a href="{{ url_for('admin.courses') }}" class="btn btn-light btn-sm">Manage</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-md-4">
+    <div class="card text-bg-success h-100">
+      <div class="card-body">
+        <h5 class="card-title">Exams</h5>
+        <p class="card-text display-6">{{ total_exams }}</p>
+        <a href="{{ url_for('admin.exams') }}" class="btn btn-light btn-sm">Manage</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-md-4">
+    <div class="card text-bg-info h-100">
+      <div class="card-body">
+        <h5 class="card-title">Approved Examiners</h5>
+        <p class="card-text display-6">{{ total_examiners }}</p>
+        <a href="{{ url_for('admin.examiners') }}" class="btn btn-light btn-sm">Manage</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-md-4">
+    <div class="card text-bg-secondary h-100">
+      <div class="card-body">
+        <h5 class="card-title">Students</h5>
+        <p class="card-text display-6">{{ total_students }}</p>
+        <a href="{{ url_for('admin.students') }}" class="btn btn-light btn-sm">View</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-md-4">
+    <div class="card text-bg-warning h-100">
+      <div class="card-body">
+        <h5 class="card-title">Slots</h5>
+        <p class="card-text display-6">{{ total_slots }}</p>
+        <a href="{{ url_for('admin.slots') }}" class="btn btn-light btn-sm">View</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-md-4">
+    <div class="card text-bg-danger h-100">
+      <div class="card-body">
+        <h5 class="card-title">Bookings</h5>
+        <p class="card-text display-6">{{ total_bookings }}</p>
+        <a href="{{ url_for('admin.bookings') }}" class="btn btn-light btn-sm">View</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

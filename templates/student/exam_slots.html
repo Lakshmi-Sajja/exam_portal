@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Slots — {{ exam.name }}{% endblock %}
+
+{% block content %}
+<h2 class="mb-1">{{ exam.name }}</h2>
+<p class="text-muted mb-4">
+    {{ exam.course.code }} — {{ exam.course.name }} &nbsp;|&nbsp;
+    {{ exam.exam_type }} &nbsp;|&nbsp;
+    {{ exam.duration }} min &nbsp;|&nbsp;
+    Max marks: {{ exam.max_marks }}
+</p>
+
+{% if not booking_open %}
+    <div class="alert alert-warning">Booking is not currently open for this exam.</div>
+{% elif not slots %}
+    <div class="alert alert-info">No available slots for this exam at the moment.</div>
+{% else %}
+    <h5 class="mb-3">Available Slots</h5>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Date</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Capacity</th>
+                    <th>Seats Left</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for slot in slots %}
+                <tr>
+                    <td>{{ slot.date }}</td>
+                    <td>{{ slot.start_time.strftime('%H:%M') }}</td>
+                    <td>{{ slot.end_time.strftime('%H:%M') }}</td>
+                    <td>{{ slot.capacity }}</td>
+                    <td>{{ slot.available_seats }}</td>
+                    <td>
+                        <form method="POST"
+                              action="{{ url_for('student.book_slot', exam_id=exam.id, slot_id=slot.id) }}">
+                            <button type="submit" class="btn btn-sm btn-success">Book</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+
+<a href="{{ url_for('student.exams') }}" class="btn btn-outline-secondary mt-2">&larr; Back to Exams</a>
+{% endblock %}

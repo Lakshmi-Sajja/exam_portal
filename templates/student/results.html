@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}My Results{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">My Results</h2>
+
+{% if bookings %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Exam</th>
+                    <th>Course</th>
+                    <th>Date</th>
+                    <th>Total Marks</th>
+                    <th>Max Marks</th>
+                    <th>Remarks</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.exam.name }}</td>
+                    <td>{{ booking.exam.course.code }} — {{ booking.exam.course.name }}</td>
+                    <td>{{ booking.slot.date }}</td>
+                    <td>{{ booking.evaluation.total_marks }}</td>
+                    <td>{{ booking.exam.max_marks }}</td>
+                    <td>{{ booking.evaluation.remarks or '—' }}</td>
+                    <td>
+                        <a href="{{ url_for('student.result_detail', booking_id=booking.id) }}"
+                           class="btn btn-sm btn-outline-primary">Details</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-info">No published results yet.</div>
+{% endif %}
+{% endblock %}
