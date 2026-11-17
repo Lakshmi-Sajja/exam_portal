@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import current_user
 
-from models import db, User, ExaminerProfile, StudentProfile, Course, Exam, Rubric, Slot, Booking
+from models import db, User, ExaminerProfile, StudentProfile, Course, Exam, Rubric, Slot, Booking, Evaluation
 from roles import admin_required
 
 
@@ -130,8 +130,17 @@ def delete_course(course_id):
 @admin.route('/exams')
 @admin_required
 def exams():
-    all_exams = Exam.query.order_by(Exam.name).all()
-    return render_template('admin/exams.html', exams=all_exams)
+    q = request.args.get('q', '').strip()
+    query = Exam.query.order_by(Exam.name)
+    if q:
+        query = query.join(Course, Exam.course_id == Course.id).filter(
+            db.or_(
+                Exam.name.ilike(f'%{q}%'),
+                Course.name.ilike(f'%{q}%'),
+            )
+        )
+    all_exams = query.all()
+    return render_template('admin/exams.html', exams=all_exams, q=q)
 
 
 @admin.route('/exams/add', methods=['GET', 'POST'])
@@ -342,13 +351,63 @@ def delete_rubric(rubric_id):
 @admin.route('/examiners')
 @admin_required
 def examiners():
-    all_examiners = (
+    q = request.args.get('q', '').strip()
+    query = (
         User.query
         .join(ExaminerProfile, User.id == ExaminerProfile.user_id)
         .order_by(User.name)
-        .all()
     )
-    return render_template('admin/examiners.html', examiners=all_examiners)
+    if q:
+        query = query.filter(
+            db.or_(
+                User.name.ilike(f'%{q}%'),
+                User.email.ilike(f'%{q}%'),
+            )
+        )
+    all_examiners = query.all()
+    return render_template('admin/examiners.html', examiners=all_examiners, q=q)
+
+
+@admin.route('/examiners/add', methods=['GET', 'POST'])
+@admin_required
+def add_examiner():
+    if request.method == 'POST':
+        name       = request.form.get('name', '').strip()
+        email      = request.form.get('email', '').strip()
+        password   = request.form.get('password', '')
+        department = request.form.get('department', '').strip()
+        contact    = request.form.get('contact', '').strip()
+
+        if not name or not email or not password:
+            flash('Name, email and password are required.', 'danger')
+            return render_template('admin/examiner_form.html')
+
+        if len(password) < 6:
+            flash('Password must be at least 6 characters.', 'danger')
+            return render_template('admin/examiner_form.html')
+
+        if User.query.filter_by(email=email).first():
+            flash('That email is already registered.', 'danger')
+            return render_template('admin/examiner_form.html')
+
+        user = User(name=name, email=email, role='examiner', is_active=True)
+        user.set_password(password)
+        db.session.add(user)
+        db.session.commit()
+
+        profile = ExaminerProfile(
+            user_id=user.id,
+            department=department,
+            contact=contact,
+            status='approved',   # admin-created examiners are approved immediately
+        )
+        db.session.add(profile)
+        db.session.commit()
+
+        flash(f'Examiner {name} added and approved.', 'success')
+        return redirect(url_for('admin.examiners'))
+
+    return render_template('admin/examiner_form.html')
 
 
 @admin.route('/examiners/<int:user_id>/approve', methods=['POST'])
@@ -445,11 +504,25 @@ def bookings():
     return render_template('admin/bookings.html', bookings=all_bookings, q=q)
 
 
+@admin.route('/bookings/<int:booking_id>/publish', methods=['POST'])
+@admin_required
+def publish_result(booking_id):
+    booking = Booking.query.get_or_404(booking_id)
+    evaluation = Evaluation.query.filter_by(booking_id=booking_id).first()
+    if not evaluation:
+        flash('No evaluation exists for this booking yet.', 'danger')
+        return redirect(url_for('admin.bookings'))
+    evaluation.is_published = True
+    db.session.commit()
+    flash('Result published. The student can now see it.', 'success')
+    return redirect(url_for('admin.bookings'))
+
+
 @admin.route('/bookings/<int:booking_id>/reschedule', methods=['POST'])
 @admin_required
 def reschedule_booking(booking_id):
-    booking      = Booking.query.get_or_404(booking_id)
-    new_slot_id  = request.form.get('new_slot_id', '').strip()
+    booking     = Booking.query.get_or_404(booking_id)
+    new_slot_id = request.form.get('new_slot_id', '').strip()
 
     if not new_slot_id:
         flash('New slot ID is required.', 'danger')
@@ -457,7 +530,12 @@ def reschedule_booking(booking_id):
 
     new_slot = Slot.query.get(int(new_slot_id))
     if not new_slot:
-        flash('The specified slot does not exist.', 'danger')
+        flash('That slot does not exist.', 'danger')
+        return redirect(url_for('admin.bookings'))
+
+    # must be a slot for the same exam
+    if new_slot.exam_id != booking.exam_id:
+        flash('You can only reschedule to a slot belonging to the same exam.', 'danger')
         return redirect(url_for('admin.bookings'))
 
     if new_slot.available_seats <= 0:
@@ -466,12 +544,12 @@ def reschedule_booking(booking_id):
 
     old_slot = booking.slot
 
-    # restore a seat to the old slot
+    # restore seat to old slot
     old_slot.available_seats += 1
     if old_slot.status == 'Full':
         old_slot.status = 'Available'
 
-    # occupy a seat in the new slot
+    # occupy seat in new slot
     new_slot.available_seats -= 1
     if new_slot.available_seats == 0:
         new_slot.status = 'Full'

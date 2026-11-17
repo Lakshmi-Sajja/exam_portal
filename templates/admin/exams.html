@@ -7,6 +7,14 @@
   <a href="{{ url_for('admin.add_exam') }}" class="btn btn-primary">+ Add Exam</a>
 </div>
 
+<form method="GET" class="d-flex mb-3" style="max-width: 400px;">
+  <input type="text" name="q" value="{{ q }}" class="form-control me-2" placeholder="Search by exam or course name">
+  <button type="submit" class="btn btn-outline-primary">Search</button>
+  {% if q %}
+  <a href="{{ url_for('admin.exams') }}" class="btn btn-outline-secondary ms-1">Clear</a>
+  {% endif %}
+</form>
+
 {% if exams %}
 <table class="table table-striped table-bordered align-middle">
   <thead class="table-dark">
