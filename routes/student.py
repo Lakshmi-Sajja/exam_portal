@@ -10,9 +10,7 @@ from roles import student_required
 student = Blueprint('student', __name__, url_prefix='/student')
 
 
-# ---------------------------------------------------------------------------
-# Step 20 — Dashboard
-# ---------------------------------------------------------------------------
+# Dashboard
 
 @student.route('/dashboard')
 @student_required
@@ -62,9 +60,7 @@ def dashboard():
     )
 
 
-# ---------------------------------------------------------------------------
-# Step 15 — Exam browsing and search
-# ---------------------------------------------------------------------------
+# Exam browsing and search
 
 @student.route('/exams')
 @student_required
@@ -112,9 +108,7 @@ def exams():
     )
 
 
-# ---------------------------------------------------------------------------
 # Exam detail — available slots
-# ---------------------------------------------------------------------------
 
 @student.route('/exams/<int:exam_id>/slots')
 @student_required
@@ -146,9 +140,7 @@ def exam_slots(exam_id):
     )
 
 
-# ---------------------------------------------------------------------------
-# Step 16 — Book a slot
-# ---------------------------------------------------------------------------
+# Book a slot
 
 @student.route('/exams/<int:exam_id>/book/<int:slot_id>', methods=['POST'])
 @student_required
@@ -162,12 +154,12 @@ def book_slot(exam_id, slot_id):
         flash('Exam or slot not found.', 'danger')
         return redirect(url_for('student.exams'))
 
-    # 1. Booking window check
+    # Booking window check
     if not (exam.booking_open and exam.booking_start <= today <= exam.booking_end):
         flash('Booking is not open for this exam right now.', 'warning')
         return redirect(url_for('student.exam_slots', exam_id=exam_id))
 
-    # 2. Duplicate booking check
+    # Duplicate booking check
     existing = Booking.query.filter_by(
         student_id=current_user.id,
         exam_id=exam_id,
@@ -177,7 +169,7 @@ def book_slot(exam_id, slot_id):
         flash('You already have an active booking for this exam.', 'warning')
         return redirect(url_for('student.exam_slots', exam_id=exam_id))
 
-    # 3. Seat availability check
+    # Seat availability check
     if slot.available_seats <= 0:
         flash('No seats available in this slot.', 'warning')
         return redirect(url_for('student.exam_slots', exam_id=exam_id))
@@ -202,9 +194,7 @@ def book_slot(exam_id, slot_id):
     return redirect(url_for('student.bookings'))
 
 
-# ---------------------------------------------------------------------------
-# Step 16 — View all bookings
-# ---------------------------------------------------------------------------
+# View all bookings
 
 @student.route('/bookings')
 @student_required
@@ -219,9 +209,7 @@ def bookings():
     return render_template('student/bookings.html', bookings=all_bookings, today=today)
 
 
-# ---------------------------------------------------------------------------
-# Step 16 — Cancel a booking
-# ---------------------------------------------------------------------------
+# Cancel a booking
 
 @student.route('/bookings/<int:booking_id>/cancel', methods=['POST'])
 @student_required
@@ -233,17 +221,17 @@ def cancel_booking(booking_id):
         flash('Booking not found.', 'danger')
         return redirect(url_for('student.bookings'))
 
-    # 1. Ownership check
+    # Ownership check
     if booking.student_id != current_user.id:
         flash('You are not allowed to cancel this booking.', 'danger')
         return redirect(url_for('student.bookings'))
 
-    # 2. Status check
+    # Status check
     if booking.status != 'Booked':
         flash('Only active bookings can be cancelled.', 'warning')
         return redirect(url_for('student.bookings'))
 
-    # 3. Deadline check
+    # Deadline check
     exam = db.session.get(Exam, booking.exam_id)
     if today > exam.booking_end:
         flash('The cancellation deadline has passed.', 'warning')
@@ -264,9 +252,7 @@ def cancel_booking(booking_id):
     return redirect(url_for('student.bookings'))
 
 
-# ---------------------------------------------------------------------------
-# Step 18 — Results list
-# ---------------------------------------------------------------------------
+# Results list
 
 @student.route('/results')
 @student_required
@@ -284,9 +270,7 @@ def results():
     return render_template('student/results.html', bookings=published)
 
 
-# ---------------------------------------------------------------------------
-# Step 18 — Result detail
-# ---------------------------------------------------------------------------
+# Result detail
 
 @student.route('/results/<int:booking_id>')
 @student_required
@@ -316,9 +300,7 @@ def result_detail(booking_id):
     )
 
 
-# ---------------------------------------------------------------------------
-# Step 21 — Profile view/edit
-# ---------------------------------------------------------------------------
+# Profile view/edit
 
 @student.route('/profile', methods=['GET', 'POST'])
 @student_required

@@ -17,9 +17,7 @@ def parse_date(s):
 admin = Blueprint('admin', __name__, url_prefix='/admin')
 
 
-# ---------------------------------------------------------------------------
-# Dashboard  (Step 20)
-# ---------------------------------------------------------------------------
+# Dashboard
 
 @admin.route('/dashboard')
 @admin_required
@@ -40,10 +38,7 @@ def dashboard():
         total_bookings=total_bookings,
     )
 
-
-# ---------------------------------------------------------------------------
-# Course management  (Step 9)
-# ---------------------------------------------------------------------------
+# Course management
 
 @admin.route('/courses')
 @admin_required
@@ -123,10 +118,7 @@ def delete_course(course_id):
     return redirect(url_for('admin.courses'))
 
 
-# ---------------------------------------------------------------------------
-# Exam management  (Step 10)
-# ---------------------------------------------------------------------------
-
+# Exam management
 @admin.route('/exams')
 @admin_required
 def exams():
@@ -170,8 +162,7 @@ def add_exam():
 
         if not course_id or not name or not exam_type or not duration or not max_marks:
             flash('Course, name, type, duration and max marks are required.', 'danger')
-            return render_template('admin/exam_form.html', action='Add', exam=None,
-                                   courses=courses, examiners=approved_examiners)
+            return render_template('admin/exam_form.html', action='Add', exam=None,courses=courses, examiners=approved_examiners)
 
         new_exam = Exam(
             course_id           = int(course_id),
@@ -191,8 +182,7 @@ def add_exam():
         flash('Exam created successfully.', 'success')
         return redirect(url_for('admin.exams'))
 
-    return render_template('admin/exam_form.html', action='Add', exam=None,
-                           courses=courses, examiners=approved_examiners)
+    return render_template('admin/exam_form.html', action='Add', exam=None,courses=courses, examiners=approved_examiners)
 
 
 @admin.route('/exams/<int:exam_id>/edit', methods=['GET', 'POST'])
@@ -223,8 +213,7 @@ def edit_exam(exam_id):
 
         if not course_id or not name or not exam_type or not duration or not max_marks:
             flash('Course, name, type, duration and max marks are required.', 'danger')
-            return render_template('admin/exam_form.html', action='Edit', exam=exam,
-                                   courses=courses, examiners=approved_examiners)
+            return render_template('admin/exam_form.html', action='Edit', exam=exam,courses=courses, examiners=approved_examiners)
 
         exam.course_id           = int(course_id)
         exam.examiner_id         = int(examiner_id) if examiner_id else None
@@ -241,8 +230,7 @@ def edit_exam(exam_id):
         flash('Exam updated successfully.', 'success')
         return redirect(url_for('admin.exams'))
 
-    return render_template('admin/exam_form.html', action='Edit', exam=exam,
-                           courses=courses, examiners=approved_examiners)
+    return render_template('admin/exam_form.html', action='Edit', exam=exam,courses=courses, examiners=approved_examiners)
 
 
 @admin.route('/exams/<int:exam_id>/delete', methods=['POST'])
@@ -258,10 +246,7 @@ def delete_exam(exam_id):
     return redirect(url_for('admin.exams'))
 
 
-# ---------------------------------------------------------------------------
-# Rubric management  (Step 11)
-# ---------------------------------------------------------------------------
-
+# Rubric management
 @admin.route('/exams/<int:exam_id>/rubrics')
 @admin_required
 def rubrics(exam_id):
@@ -344,10 +329,7 @@ def delete_rubric(rubric_id):
     return redirect(url_for('admin.rubrics', exam_id=exam_id))
 
 
-# ---------------------------------------------------------------------------
-# Examiner approval / deactivation  (Step 12)
-# ---------------------------------------------------------------------------
-
+# Examiner approval / deactivation
 @admin.route('/examiners')
 @admin_required
 def examiners():
@@ -399,7 +381,7 @@ def add_examiner():
             user_id=user.id,
             department=department,
             contact=contact,
-            status='approved',   # admin-created examiners are approved immediately
+            status='approved',
         )
         db.session.add(profile)
         db.session.commit()
@@ -434,10 +416,7 @@ def deactivate_examiner(user_id):
     return redirect(url_for('admin.examiners'))
 
 
-# ---------------------------------------------------------------------------
-# Toggle slot creation / booking  (Step 13)
-# ---------------------------------------------------------------------------
-
+# Toggle slot creation / booking
 @admin.route('/exams/<int:exam_id>/toggle_slot_creation', methods=['POST'])
 @admin_required
 def toggle_slot_creation(exam_id):
@@ -460,10 +439,7 @@ def toggle_booking(exam_id):
     return redirect(url_for('admin.exams'))
 
 
-# ---------------------------------------------------------------------------
-# Admin oversight — Slots  (Step 19)
-# ---------------------------------------------------------------------------
-
+# Admin oversight — slots
 @admin.route('/slots')
 @admin_required
 def slots():
@@ -480,10 +456,7 @@ def slots():
     return render_template('admin/slots.html', slots=all_slots, q=q)
 
 
-# ---------------------------------------------------------------------------
-# Admin oversight — Bookings  (Step 19)
-# ---------------------------------------------------------------------------
-
+# Admin oversight — bookings
 @admin.route('/bookings')
 @admin_required
 def bookings():
@@ -560,10 +533,7 @@ def reschedule_booking(booking_id):
     return redirect(url_for('admin.bookings'))
 
 
-# ---------------------------------------------------------------------------
-# Admin oversight — Students  (Step 19)
-# ---------------------------------------------------------------------------
-
+# Admin oversight — students
 @admin.route('/students')
 @admin_required
 def students():
@@ -584,10 +554,7 @@ def students():
     return render_template('admin/students.html', students=all_students, q=q)
 
 
-# ---------------------------------------------------------------------------
-# Exam reassignment  (Step 19)
-# ---------------------------------------------------------------------------
-
+# Exam reassignment
 @admin.route('/exams/<int:exam_id>/reassign', methods=['POST'])
 @admin_required
 def reassign_exam(exam_id):

@@ -53,7 +53,7 @@ class Course(db.Model):
     description = db.Column(db.Text)
     status = db.Column(db.String(20), default='active')  # active / inactive
 
-    exams = db.relationship('Exam', backref='course')
+    exams = db.relationship('Exam', backref='course', cascade='all, delete-orphan')
 
 
 class Exam(db.Model):
@@ -78,8 +78,8 @@ class Exam(db.Model):
     status = db.Column(db.String(20), default='Draft')  # Draft / Slot Creation / Booking Open / Closed / Completed
 
     examiner = db.relationship('User', foreign_keys=[examiner_id])
-    rubrics = db.relationship('Rubric', backref='exam')
-    slots = db.relationship('Slot', backref='exam')
+    rubrics = db.relationship('Rubric', backref='exam', cascade='all, delete-orphan')
+    slots = db.relationship('Slot', backref='exam', cascade='all, delete-orphan')
 
 
 class Rubric(db.Model):
@@ -105,7 +105,7 @@ class Slot(db.Model):
     status = db.Column(db.String(20), default='Available')  # Available / Full / Cancelled / Completed
 
     examiner = db.relationship('User', foreign_keys=[examiner_id])
-    bookings = db.relationship('Booking', backref='slot')
+    bookings = db.relationship('Booking', backref='slot', cascade='all, delete-orphan')
 
 
 class Booking(db.Model):
@@ -119,7 +119,7 @@ class Booking(db.Model):
 
     student = db.relationship('User', foreign_keys=[student_id])
     exam = db.relationship('Exam', foreign_keys=[exam_id])
-    evaluation = db.relationship('Evaluation', backref='booking', uselist=False)
+    evaluation = db.relationship('Evaluation', backref='booking', uselist=False, cascade='all, delete-orphan')
 
 
 #Evaluation
@@ -131,7 +131,7 @@ class Evaluation(db.Model):
     remarks = db.Column(db.Text)
     is_published = db.Column(db.Boolean, default=False)
 
-    scores = db.relationship('EvaluationScore', backref='evaluation')
+    scores = db.relationship('EvaluationScore', backref='evaluation', cascade='all, delete-orphan')
 
 
 class EvaluationScore(db.Model):

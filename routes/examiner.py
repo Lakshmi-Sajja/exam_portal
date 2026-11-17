@@ -8,9 +8,6 @@ from roles import examiner_required
 
 examiner = Blueprint('examiner', __name__)
 
-
-# ── helpers ──────────────────────────────────────────────────────────────────
-
 def _get_exam_or_403(exam_id):
     """Return the exam only if it belongs to the current examiner."""
     exam = Exam.query.get_or_404(exam_id)
@@ -45,7 +42,7 @@ def _slot_has_bookings(slot_id):
     return Booking.query.filter_by(slot_id=slot_id, status='Booked').count() > 0
 
 
-# ── dashboard ─────────────────────────────────────────────────────────────────
+# Dashboard
 
 @examiner.route('/examiner/dashboard')
 @examiner_required
@@ -53,8 +50,7 @@ def dashboard():
     exams = Exam.query.filter_by(examiner_id=current_user.id).all()
     exam_ids = [e.id for e in exams]
 
-    slot_count = Slot.query.filter(Slot.exam_id.in_(exam_ids),
-                                   Slot.examiner_id == current_user.id).count()
+    slot_count = Slot.query.filter(Slot.exam_id.in_(exam_ids),Slot.examiner_id == current_user.id).count()
 
     slot_ids = [s.id for s in Slot.query.filter(
         Slot.exam_id.in_(exam_ids),
@@ -87,7 +83,7 @@ def dashboard():
     )
 
 
-# ── exams list ────────────────────────────────────────────────────────────────
+# Exams list
 
 @examiner.route('/examiner/exams')
 @examiner_required
@@ -96,7 +92,7 @@ def exams():
     return render_template('examiner/exams.html', exams=assigned_exams)
 
 
-# ── slots list ────────────────────────────────────────────────────────────────
+# Slots list
 
 @examiner.route('/examiner/exams/<int:exam_id>/slots')
 @examiner_required
@@ -105,8 +101,7 @@ def slots(exam_id):
     if exam is None:
         return redirect(url_for('examiner.exams'))
 
-    all_slots = Slot.query.filter_by(exam_id=exam_id,
-                                     examiner_id=current_user.id).all()
+    all_slots = Slot.query.filter_by(exam_id=exam_id,examiner_id=current_user.id).all()
 
     can_add = _slot_creation_allowed(exam)
 
@@ -124,7 +119,7 @@ def slots(exam_id):
     )
 
 
-# ── add slot ──────────────────────────────────────────────────────────────────
+# Add slot
 
 @examiner.route('/examiner/exams/<int:exam_id>/slots/add', methods=['GET', 'POST'])
 @examiner_required
@@ -189,7 +184,7 @@ def add_slot(exam_id):
     return render_template('examiner/slot_form.html', exam=exam, action='Add', slot=None)
 
 
-# ── edit slot ─────────────────────────────────────────────────────────────────
+# Edit slot
 
 @examiner.route('/examiner/slots/<int:slot_id>/edit', methods=['GET', 'POST'])
 @examiner_required
@@ -261,7 +256,7 @@ def edit_slot(slot_id):
     return render_template('examiner/slot_form.html', exam=exam, action='Edit', slot=slot)
 
 
-# ── delete slot ───────────────────────────────────────────────────────────────
+# Delete slot
 
 @examiner.route('/examiner/slots/<int:slot_id>/delete', methods=['POST'])
 @examiner_required
@@ -286,7 +281,7 @@ def delete_slot(slot_id):
     return redirect(url_for('examiner.slots', exam_id=exam.id))
 
 
-# ── students in a slot ────────────────────────────────────────────────────────
+# Students in a slot
 
 @examiner.route('/examiner/slots/<int:slot_id>/students')
 @examiner_required
@@ -303,7 +298,7 @@ def slot_students(slot_id):
     return render_template('examiner/students.html', slot=slot, bookings=bookings)
 
 
-# ── evaluate a student ────────────────────────────────────────────────────────
+# Evaluation of a student
 
 @examiner.route('/examiner/bookings/<int:booking_id>/evaluate', methods=['GET', 'POST'])
 @examiner_required
